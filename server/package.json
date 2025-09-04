@@ -1,0 +1,21 @@
+{
+  "name": "smartkeep-server",
+  "version": "1.0.0",
+  "description": "Backend API for SmartKeep note-taking application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sqlite3": "^5.1.6",
+    "dotenv": "^16.3.1",
+    "express-rate-limit": "^6.7.1",
+    "helmet": "^7.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
