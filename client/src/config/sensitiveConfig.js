@@ -51,6 +51,9 @@ export const sensitiveConfig = {
   // Number of mask characters to show
   maskLength: 8,
 
+  // If true, mask length expands to the full length of the detected value
+  fullMaskValue: true,
+
   // Whether to show partial content (first and last characters)
   showPartial: false,
 
@@ -130,21 +133,30 @@ export const maskSensitiveContent = (content, isUnmasked = false) => {
   // Apply keyword-based masking
   for (const keyword of sensitiveConfig.sensitiveKeywords) {
     for (const separator of sensitiveConfig.separators) {
+      // Capture everything after the separator until a line break to avoid leaking remainder (including spaces or quotes)
       const regex = new RegExp(
-        `(${keyword})${separator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*([^\\s\\n\\r]+)`,
+        `(${keyword})${separator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*([^\\n\\r]*)`,
         'gi'
       );
-      
+
       maskedContent = maskedContent.replace(regex, (match, keywordPart, valuePart) => {
-        const maskStr = sensitiveConfig.maskCharacter.repeat(sensitiveConfig.maskLength);
-        
-        if (sensitiveConfig.showPartial && valuePart.length > sensitiveConfig.partialLength * 2) {
-          const start = valuePart.substring(0, sensitiveConfig.partialLength);
-          const end = valuePart.substring(valuePart.length - sensitiveConfig.partialLength);
-          return `${keywordPart}${separator}${start}${maskStr}${end}`;
+        const trimmedValue = valuePart.trim();
+        if (!trimmedValue) return match; // nothing to mask
+
+        const dynamicMaskLength = sensitiveConfig.fullMaskValue
+          ? trimmedValue.length
+          : sensitiveConfig.maskLength;
+        const maskStr = sensitiveConfig.maskCharacter.repeat(dynamicMaskLength);
+
+        if (sensitiveConfig.showPartial && trimmedValue.length > sensitiveConfig.partialLength * 2) {
+          const start = trimmedValue.substring(0, sensitiveConfig.partialLength);
+            const end = trimmedValue.substring(trimmedValue.length - sensitiveConfig.partialLength);
+            return `${keywordPart}${separator}${start}${maskStr}${end}`;
         }
-        
-        return `${keywordPart}${separator}${maskStr}`;
+
+        // Preserve original trailing whitespace (if any) after value
+        const trailingWhitespace = valuePart.match(/\s+$/)?.[0] || '';
+        return `${keywordPart}${separator}${maskStr}${trailingWhitespace}`;
       });
     }
   }

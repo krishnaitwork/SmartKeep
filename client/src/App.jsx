@@ -31,7 +31,7 @@ function App() {
     const savedTheme = localStorage.getItem('smartkeep-theme');
     if (savedTheme === 'dark') {
       setDarkMode(true);
-      document.body.setAttribute('data-theme', 'dark');
+      document.documentElement.classList.add('dark');
     }
   }, []);
 
@@ -208,21 +208,21 @@ function App() {
   const toggleTheme = () => {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
-    document.body.setAttribute('data-theme', newDarkMode ? 'dark' : 'light');
+    document.documentElement.classList.toggle('dark', newDarkMode);
     localStorage.setItem('smartkeep-theme', newDarkMode ? 'dark' : 'light');
   };
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading notes...</p>
+      <div className="flex flex-col justify-center items-center h-screen gap-4 bg-background">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-primary rounded-full animate-spin"></div>
+        <p className="text-lg text-foreground">Loading notes...</p>
       </div>
     );
   }
 
   return (
-    <div className={`app ${darkMode ? 'dark' : 'light'}`}>
+    <div className={`min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-background ${darkMode ? 'dark' : ''}`}>
       <Header
         darkMode={darkMode}
         onToggleTheme={toggleTheme}
@@ -239,9 +239,9 @@ function App() {
         onOpenConfig={() => setIsConfigOpen(true)}
       />
       
-      <div className="container">
-        <div className="notes-grid">
-          {filteredNotes && filteredNotes.length > 0 && filteredNotes.map(note => (
+      <div className="px-3 md:px-4 lg:px-6 py-4 md:py-5 max-w-full m-0 w-full box-border flex-1 flex flex-col">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 md:gap-4 w-full max-w-full">
+          {filteredNotes && filteredNotes.length > 0 ? filteredNotes.map(note => (
             <NoteCard
               key={note.id}
               note={note}
@@ -250,13 +250,13 @@ function App() {
               onTogglePin={handleTogglePin}
               onToggleArchive={handleToggleArchive}
             />
-          ))}
+          )) : null}
           
           {(!filteredNotes || filteredNotes.length === 0) && (
-            <div className="empty-state">
-              <p>{showArchived ? 'No archived notes' : 'No notes yet'}</p>
+            <div className="col-span-full flex flex-col justify-center items-center flex-1 min-h-[320px] px-4 md:px-5 py-10 text-foreground opacity-70">
+              <p className="text-lg md:text-xl mb-4 md:mb-6 text-center">{showArchived ? 'No archived notes' : 'No notes yet'}</p>
               {!showArchived && (
-                <button onClick={handleCreateNote} className="create-first-note-btn">
+                <button onClick={handleCreateNote} className="bg-primary text-primary-foreground border-none rounded-lg px-6 md:px-7 py-3 md:py-3.5 text-base md:text-lg cursor-pointer transition-colors font-medium hover:bg-primary/90">
                   Create your first note
                 </button>
               )}

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { hasSensitiveContent, maskSensitiveContent } from '../config/sensitiveConfig';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4001/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/smartkeep';
 
 const api = axios.create({
   baseURL: BASE_URL,
